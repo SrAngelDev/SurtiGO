@@ -1,0 +1,67 @@
+<article
+  class="group relative overflow-hidden rounded-xl border border-dark-border bg-dark-card p-4 transition-all duration-300 hover:border-brand-blue/40 hover:shadow-lg hover:shadow-brand-blue/5"
+>
+  <!-- Cheap indicator badge -->
+  @if (isCheap()) {
+    <div class="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-brand-orange/15 px-2.5 py-0.5">
+      <svg class="h-3.5 w-3.5 text-brand-orange" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+      <span class="text-xs font-semibold text-brand-orange">Bajo</span>
+    </div>
+  }
+
+  <!-- Station name -->
+  <div class="mb-3 pr-16">
+    <h3 class="truncate text-sm font-semibold text-text-primary group-hover:text-brand-blue transition-colors duration-200">
+      {{ station().nombre }}
+    </h3>
+    @if (station().direccion) {
+      <p class="mt-0.5 truncate text-xs text-text-muted">
+        {{ station().direccion }}
+      </p>
+    }
+    @if (station().localidad || station().provincia) {
+      <p class="mt-0.5 truncate text-xs text-text-secondary">
+        {{ station().localidad }}{{ station().localidad && station().provincia ? ', ' : '' }}{{ station().provincia }}
+      </p>
+    }
+  </div>
+
+  <!-- Price + Distance row -->
+  <div class="flex items-end justify-between">
+    <!-- Price -->
+    <div>
+      @if (currentPrice(); as price) {
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-extrabold tabular-nums" [class]="isCheap() ? 'text-brand-orange' : 'text-text-primary'">
+            {{ price.toFixed(3) }}
+          </span>
+          <span class="text-xs font-medium text-text-muted">€/L</span>
+        </div>
+        <span class="text-xs text-text-muted">{{ fuelLabel() }}</span>
+      } @else {
+        <div class="flex items-baseline gap-1">
+          <span class="text-lg font-semibold text-text-muted">N/D</span>
+        </div>
+        <span class="text-xs text-text-muted">Sin datos</span>
+      }
+    </div>
+
+    <!-- Distance -->
+    @if (formattedDistance(); as dist) {
+      <div class="flex items-center gap-1 text-text-secondary">
+        <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <span class="text-xs font-medium">{{ dist }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Bottom gradient line -->
+  <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-blue to-brand-orange opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+</article>

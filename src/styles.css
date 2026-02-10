@@ -1,3 +1,52 @@
-/* You can add global styles to this file, and also import other style files */
-
+/* SurtiGO - Global Styles */
 @import "tailwindcss";
+
+/* ===== Custom Theme (Tailwind v4 CSS-first config) ===== */
+@theme {
+  /* Brand Colors */
+  --color-brand-blue: #3b82f6;
+  --color-brand-blue-light: #60a5fa;
+  --color-brand-blue-dark: #2563eb;
+  --color-brand-orange: #f97316;
+  --color-brand-orange-light: #fb923c;
+  --color-brand-orange-dark: #ea580c;
+
+  /* Dark Background Palette */
+  --color-dark-bg: #0c0a09;
+  --color-dark-surface: #1c1917;
+  --color-dark-card: #292524;
+  --color-dark-border: #44403c;
+
+  /* Text Colors */
+  --color-text-primary: #fafaf9;
+  --color-text-secondary: #a8a29e;
+  --color-text-muted: #78716c;
+
+  /* Font Family */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ===== Base Styles ===== */
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-dark-bg text-text-primary font-sans antialiased;
+  min-height: 100vh;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-dark-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-dark-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}

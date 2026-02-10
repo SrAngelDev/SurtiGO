@@ -1,0 +1,136 @@
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+
+  <!-- Header Section -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-text-primary sm:text-3xl">
+      Gasolineras cerca de ti
+    </h1>
+    <p class="mt-1 text-sm text-text-secondary">
+      Encuentra el mejor precio de combustible en tu zona
+    </p>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="mb-6 flex flex-wrap items-center gap-3">
+    <!-- Fuel type toggle buttons -->
+    @for (option of fuelOptions; track option.value) {
+      <button
+        (click)="selectFuelType(option.value)"
+        [class]="
+          fuelService.selectedFuelType() === option.value
+            ? 'border-brand-blue bg-brand-blue/10 text-brand-blue ring-1 ring-brand-blue/30'
+            : 'border-dark-border bg-dark-card text-text-secondary hover:border-text-muted hover:text-text-primary'
+        "
+        class="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-200"
+      >
+        <span>{{ option.icon }}</span>
+        <span>{{ option.label }}</span>
+      </button>
+    }
+
+    <!-- Separator -->
+    <div class="hidden h-6 w-px bg-dark-border sm:block"></div>
+
+    <!-- Stats -->
+    @if (fuelService.sortedStations().length > 0) {
+      <div class="flex items-center gap-4 text-xs text-text-muted">
+        <span class="inline-flex items-center gap-1">
+          <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+            <path d="M7 16 12 9l4 4 5-7" />
+          </svg>
+          {{ fuelService.sortedStations().length }} estaciones
+        </span>
+        @if (fuelService.averagePrice() > 0) {
+          <span class="inline-flex items-center gap-1">
+            Precio medio:
+            <span class="font-semibold text-text-secondary">{{ fuelService.averagePrice().toFixed(3) }} €/L</span>
+          </span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Location Error State -->
+  @if (geoService.locationError(); as locError) {
+    <div class="mb-6 flex items-center gap-3 rounded-lg border border-brand-orange/30 bg-brand-orange/5 px-4 py-3">
+      <svg class="h-5 w-5 shrink-0 text-brand-orange" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+        <path d="M12 9v4" />
+        <path d="M12 17h.01" />
+      </svg>
+      <div class="flex-1">
+        <p class="text-sm text-brand-orange">{{ locError }}</p>
+      </div>
+      <button
+        (click)="retryLocation()"
+        class="rounded-md bg-brand-orange/10 px-3 py-1.5 text-xs font-medium text-brand-orange transition-colors hover:bg-brand-orange/20"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- API Error State -->
+  @if (fuelService.error(); as apiError) {
+    <div class="mb-6 flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3">
+      <svg class="h-5 w-5 shrink-0 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m15 9-6 6" />
+        <path d="m9 9 6 6" />
+      </svg>
+      <p class="text-sm text-red-400">{{ apiError }}</p>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (geoService.isLocating() || fuelService.isLoading()) {
+    <div class="flex flex-col items-center justify-center py-20">
+      <!-- Animated spinner -->
+      <div class="relative mb-4">
+        <div class="h-12 w-12 animate-spin rounded-full border-4 border-dark-border border-t-brand-blue"></div>
+      </div>
+      <p class="text-sm text-text-secondary">
+        @if (geoService.isLocating()) {
+          Obteniendo tu ubicación...
+        } @else {
+          Cargando estaciones cercanas...
+        }
+      </p>
+    </div>
+  } @else if (fuelService.sortedStations().length === 0 && !fuelService.error() && !geoService.locationError()) {
+    <!-- Empty State -->
+    <div class="flex flex-col items-center justify-center py-20">
+      <div class="mb-4 rounded-full bg-dark-card p-4">
+        <svg class="h-10 w-10 text-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17" />
+          <path d="M13 10h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 6" />
+          <path d="M3 22h10" />
+          <path d="M5 8h6" />
+        </svg>
+      </div>
+      <p class="text-sm font-medium text-text-secondary">No se encontraron estaciones</p>
+      <p class="mt-1 text-xs text-text-muted">Permite el acceso a tu ubicación para ver estaciones cercanas</p>
+      <button
+        (click)="retryLocation()"
+        class="mt-4 rounded-lg bg-brand-blue px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-blue-dark"
+      >
+        Activar ubicación
+      </button>
+    </div>
+  } @else {
+    <!-- Station Grid -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      @for (station of fuelService.sortedStations(); track station.idEstacion) {
+        <app-station-card
+          [station]="station"
+          [averagePrice]="fuelService.averagePrice()"
+        />
+      }
+    </div>
+  }
+</div>
