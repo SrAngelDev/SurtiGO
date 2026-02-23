@@ -1,50 +1,75 @@
-<nav class="sticky top-0 z-50 border-b border-dark-border bg-dark-surface/80 backdrop-blur-xl">
-  <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+<nav class="sticky top-0 z-50 border-b border-glass-border bg-dark-bg/70 backdrop-blur-2xl backdrop-saturate-150">
+  <div class="mx-auto flex max-w-screen-2xl items-center gap-4 px-4 py-2.5 sm:px-6">
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-1.5 select-none">
-      <!-- Fuel pump icon (inline SVG) -->
-      <svg class="h-7 w-7 text-brand-blue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17" />
-        <path d="M13 10h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 6" />
-        <path d="M3 22h10" />
-        <path d="M5 8h6" />
-      </svg>
-      <span class="text-xl font-extrabold tracking-tight">
+    <a routerLink="/" class="flex shrink-0 items-center gap-2 select-none group">
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-blue/10 transition-colors group-hover:bg-brand-blue/20">
+        <svg class="h-5 w-5 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 6"/><path d="M3 22h10"/><path d="M5 8h6"/>
+        </svg>
+      </div>
+      <span class="text-lg font-extrabold tracking-tight sm:text-xl">
         <span class="text-brand-blue">Surti</span><span class="text-brand-orange">GO</span>
       </span>
     </a>
 
-    <!-- Search bar -->
-    <div class="relative mx-4 flex-1 max-w-md">
-      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-        <!-- Search icon -->
-        <svg class="h-4 w-4 text-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.3-4.3" />
+    <!-- Search -->
+    <div class="relative flex-1 max-w-lg">
+      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+        <svg class="h-4 w-4 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
         </svg>
       </div>
       <input
         type="text"
-        placeholder="Buscar gasolinera, dirección o localidad..."
-        [value]="fuelService.searchQuery()"
-        (input)="fuelService.searchQuery.set($any($event.target).value)"
-        class="w-full rounded-lg border border-dark-border bg-dark-bg py-2 pl-10 pr-4 text-sm text-text-primary placeholder-text-muted transition-colors duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue"
+        placeholder="Buscar gasolinera o ciudad... (Enter para buscar zona)"
+        [ngModel]="fuelService.searchQuery()"
+        (ngModelChange)="fuelService.searchQuery.set($event)"
+        (keydown)="onSearchKeydown($event)"
+        class="w-full rounded-xl border border-glass-border bg-glass py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200 focus:border-brand-blue/50 focus:bg-glass-hover focus:outline-none focus:ring-2 focus:ring-brand-blue/20"
       />
     </div>
 
-    <!-- Info badge -->
-    <div class="hidden items-center gap-2 sm:flex">
-      <span class="inline-flex items-center gap-1 rounded-full bg-brand-blue/10 px-3 py-1 text-xs font-medium text-brand-blue">
-        <!-- Map pin icon -->
-        <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-        España
-      </span>
+    <!-- Right side -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Theme toggle -->
+      <button (click)="cycleTheme()"
+        class="flex h-9 w-9 items-center justify-center rounded-xl border border-glass-border bg-glass text-text-muted transition-all duration-200 hover:bg-glass-hover hover:text-text-primary"
+        [title]="'Tema: ' + themeService.mode()">
+        @switch (themeService.mode()) {
+          @case ('light') {
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            </svg>
+          }
+          @case ('dark') {
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+          }
+          @default {
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          }
+        }
+      </button>
+
+      <!-- Location status -->
+      <div class="hidden sm:flex">
+        @if (geoService.hasLocation()) {
+          <div class="flex items-center gap-1.5 rounded-lg bg-brand-green/10 px-3 py-1.5">
+            <div class="h-1.5 w-1.5 rounded-full bg-brand-green animate-pulse-dot"></div>
+            <span class="text-xs font-medium text-brand-green">GPS activo</span>
+          </div>
+        } @else {
+          <button (click)="onRetryLocation()" class="flex items-center gap-1.5 rounded-lg bg-dark-card px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-dark-card-hover hover:text-text-secondary">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            Activar GPS
+          </button>
+        }
+      </div>
     </div>
   </div>
 </nav>

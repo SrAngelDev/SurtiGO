@@ -1,12 +1,10 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, map, of, tap } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of } from 'rxjs';
 import {
   GasStation,
   StationRadioResponse,
   Provincia,
-  Municipio,
   PrecioMedioProvincia,
   FuelType,
 } from '../models/gas-station.interface';
@@ -27,6 +25,8 @@ export class FuelService {
   readonly searchQuery = signal('');
   readonly provincias = signal<Provincia[]>([]);
   readonly selectedProvincia = signal<number | null>(null);
+  readonly searchCenter = signal<{ latitude: number; longitude: number } | null>(null);
+  private lastRadius: number = environment.defaultRadius as number;
 
   /** Estaciones filtradas por búsqueda */
   readonly filteredStations = computed(() => {
@@ -50,8 +50,8 @@ export class FuelService {
     const fuelType = this.selectedFuelType();
 
     return [...filtered].sort((a, b) => {
-      const priceA = fuelType === 'diesel' ? (a.precioDiesel ?? Infinity) : (a.precioGasolina95 ?? Infinity);
-      const priceB = fuelType === 'diesel' ? (b.precioDiesel ?? Infinity) : (b.precioGasolina95 ?? Infinity);
+      const priceA = this.getPrice(a, fuelType) ?? Infinity;
+      const priceB = this.getPrice(b, fuelType) ?? Infinity;
       return priceA - priceB;
     });
   });
@@ -62,19 +62,32 @@ export class FuelService {
     const fuelType = this.selectedFuelType();
 
     const prices = stationList
-      .map((s) => (fuelType === 'diesel' ? s.precioDiesel : s.precioGasolina95))
+      .map((s) => this.getPrice(s, fuelType))
       .filter((p): p is number => p != null && p > 0);
 
     if (prices.length === 0) return 0;
     return Math.round((prices.reduce((sum, p) => sum + p, 0) / prices.length) * 1000) / 1000;
   });
 
+  /** Helper: obtiene el precio de una estación según el tipo de combustible */
+  getPrice(station: GasStation, fuelType: FuelType): number | undefined {
+    switch (fuelType) {
+      case 'diesel': return station.precioDiesel;
+      case 'dieselPremium': return station.precioDieselPremium;
+      case 'gasolina95': return station.precioGasolina95;
+      case 'gasolina98': return station.precioGasolina98;
+      case 'glp': return station.precioGLP;
+    }
+  }
+
   /**
    * Carga estaciones cercanas a una ubicación dada (usa endpoint /estaciones/radio).
    */
-  loadStationsByRadius(lat: number, lon: number, radio = environment.defaultRadius): void {
+  loadStationsByRadius(lat: number, lon: number, radio: number = environment.defaultRadius): void {
     this.isLoading.set(true);
     this.error.set(null);
+    this.searchCenter.set({ latitude: lat, longitude: lon });
+    this.lastRadius = radio;
 
     const params = new HttpParams()
       .set('latitud', lat.toString())
@@ -156,21 +169,54 @@ export class FuelService {
   }
 
   /**
+   * Busca estaciones por nombre de localidad/ciudad usando geocodificación.
+   */
+  searchByLocation(query: string): void {
+    if (!query.trim()) return;
+
+    const url = 'https://nominatim.openstreetmap.org/search';
+    const params = new HttpParams()
+      .set('q', `${query}, España`)
+      .set('format', 'json')
+      .set('limit', '1')
+      .set('countrycodes', 'es');
+
+    this.http.get<Array<{ lat: string; lon: string; display_name: string }>>(url, { params })
+      .pipe(
+        catchError(() => of([])),
+      )
+      .subscribe((results) => {
+        if (results.length > 0) {
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          this.searchQuery.set('');
+          this.loadStationsByRadius(lat, lon, this.lastRadius);
+        }
+      });
+  }
+
+  /**
    * Mapea la respuesta de /estaciones/radio al modelo GasStation.
    */
   private mapRadioResponse(response: StationRadioResponse[]): GasStation[] {
-    return response.map((item) => {
-      const [longitud, latitud] = item.coordenadas?.coordinates ?? [0, 0];
-      return {
-        idEstacion: parseInt(item._id, 10) || 0,
-        nombre: item.nombre ?? 'Estación desconocida',
-        direccion: '',
-        latitud,
-        longitud,
-        provincia: item.provincia,
-        localidad: item.localidad,
-        distancia: item.distancia != null ? Math.round(item.distancia * 100) / 100 : undefined,
-      };
-    });
+    return response.map((item) => ({
+      idEstacion: item.idEstacion,
+      nombre: item.nombreEstacion ?? 'Estación desconocida',
+      direccion: item.direccion ?? '',
+      latitud: item.latitud,
+      longitud: item.longitud,
+      provincia: item.provincia,
+      localidad: item.localidad,
+      marca: item.marca,
+      horario: item.horario,
+      distancia: item.distancia != null ? Math.round(item.distancia * 1000) / 1000 : undefined,
+      precioDiesel: item.Diesel,
+      precioDieselPremium: item.DieselPremium,
+      precioGasolina95: item.Gasolina95,
+      precioGasolina98: item.Gasolina98,
+      precioGLP: item.GLP,
+      precioDieselMedia: item.Diesel_media,
+      precioGasolina95Media: item.Gasolina95_media,
+    }));
   }
 }

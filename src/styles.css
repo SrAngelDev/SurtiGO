@@ -1,52 +1,251 @@
-/* SurtiGO - Global Styles */
+/* ═══════════════════════════════════════════════════════════
+   SurtiGO — Global Design System
+   ═══════════════════════════════════════════════════════════ */
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
-/* ===== Custom Theme (Tailwind v4 CSS-first config) ===== */
+/* ───── Theme Tokens (Tailwind v4) ───── */
 @theme {
-  /* Brand Colors */
+  /* Brand */
   --color-brand-blue: #3b82f6;
   --color-brand-blue-light: #60a5fa;
   --color-brand-blue-dark: #2563eb;
   --color-brand-orange: #f97316;
   --color-brand-orange-light: #fb923c;
   --color-brand-orange-dark: #ea580c;
+  --color-brand-green: #22c55e;
+  --color-brand-green-light: #4ade80;
 
-  /* Dark Background Palette */
-  --color-dark-bg: #0c0a09;
-  --color-dark-surface: #1c1917;
-  --color-dark-card: #292524;
-  --color-dark-border: #44403c;
+  /* Surfaces */
+  --color-dark-bg: #09090b;
+  --color-dark-surface: #18181b;
+  --color-dark-card: #1f1f23;
+  --color-dark-card-hover: #27272a;
+  --color-dark-border: #2e2e33;
+  --color-dark-border-hover: #3f3f46;
 
-  /* Text Colors */
-  --color-text-primary: #fafaf9;
-  --color-text-secondary: #a8a29e;
-  --color-text-muted: #78716c;
+  /* Glass */
+  --color-glass: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.06);
+  --color-glass-hover: rgba(255, 255, 255, 0.06);
 
-  /* Font Family */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Text */
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+
+  /* Font */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-down: slide-down 0.3s ease-out both;
+  --animate-scale-in: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
 }
 
-/* ===== Base Styles ===== */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ───── Base ───── */
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+html.light {
+  color-scheme: light;
+  --color-dark-bg: #f4f4f5;
+  --color-dark-surface: #e4e4e7;
+  --color-dark-card: #ffffff;
+  --color-dark-card-hover: #f4f4f5;
+  --color-dark-border: #d4d4d8;
+  --color-dark-border-hover: #a1a1aa;
+  --color-glass: rgba(255, 255, 255, 0.6);
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  --color-glass-hover: rgba(255, 255, 255, 0.8);
+  --color-text-primary: #18181b;
+  --color-text-secondary: #3f3f46;
+  --color-text-muted: #71717a;
 }
 
 body {
   @apply bg-dark-bg text-text-primary font-sans antialiased;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
+/* ───── Scrollbar ───── */
+* { scrollbar-width: thin; scrollbar-color: var(--color-dark-border) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-dark-border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+/* ───── Leaflet Overrides (dark theme) ───── */
+.leaflet-container {
+  background: var(--color-dark-bg) !important;
+  font-family: var(--font-sans) !important;
 }
-::-webkit-scrollbar-track {
-  background: var(--color-dark-bg);
+.leaflet-popup-content-wrapper {
+  background: var(--color-dark-card) !important;
+  color: var(--color-text-primary) !important;
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--color-dark-border) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+  padding: 0 !important;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--color-dark-border);
-  border-radius: 4px;
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.5 !important;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+.leaflet-popup-tip {
+  background: var(--color-dark-card) !important;
+  border: 1px solid var(--color-dark-border) !important;
+  box-shadow: none !important;
+}
+.leaflet-popup-close-button {
+  color: var(--color-text-muted) !important;
+  font-size: 18px !important;
+  top: 6px !important;
+  right: 8px !important;
+}
+.leaflet-popup-close-button:hover {
+  color: var(--color-text-primary) !important;
+}
+.leaflet-control-zoom a {
+  background: var(--color-dark-card) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-dark-border) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: var(--color-dark-card-hover) !important;
+}
+
+/* ───── Skeleton loader ───── */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-dark-card) 25%, var(--color-dark-card-hover) 50%, var(--color-dark-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ───── Custom range slider ───── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 24px;
+}
+
+/* Webkit (Chrome, Safari, Edge) */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+html.light input[type="range"]::-webkit-slider-runnable-track {
+  background: #94a3b8;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  background: var(--color-brand-blue);
+  border: 3px solid #fff;
+  margin-top: -7px;
+  box-shadow: 0 0 0 2px var(--color-brand-blue), 0 2px 8px rgba(0,0,0,0.25);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px var(--color-brand-blue), 0 2px 10px rgba(0,0,0,0.3);
+}
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  border: none;
+}
+html.light input[type="range"]::-moz-range-track {
+  background: #94a3b8;
+}
+input[type="range"]::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: var(--color-brand-blue);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px var(--color-brand-blue), 0 2px 8px rgba(0,0,0,0.25);
+}
+input[type="range"]::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-brand-blue);
+}
+
+/* ───── Leaflet light mode overrides ───── */
+html.light .leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #18181b !important;
+  border-color: #d4d4d8 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+}
+html.light .leaflet-popup-tip {
+  background: #ffffff !important;
+  border-color: #d4d4d8 !important;
+}
+html.light .leaflet-control-zoom a {
+  background: #ffffff !important;
+  color: #18181b !important;
+  border-color: #d4d4d8 !important;
+}
+html.light .leaflet-control-zoom a:hover {
+  background: #f4f4f5 !important;
+}
+html.light .leaflet-container {
+  background: #f4f4f5 !important;
+}
+
+/* ───── Map highlight pulse ───── */
+@keyframes highlight-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.05); }
 }
